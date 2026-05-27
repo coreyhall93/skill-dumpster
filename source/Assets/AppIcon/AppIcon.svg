@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Skill Dumpster app icon">
+  <defs>
+    <linearGradient id="background" x1="192" y1="96" x2="832" y2="928" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#eff7ff"/>
+      <stop offset="0.52" stop-color="#d9e6f4"/>
+      <stop offset="1" stop-color="#bacbe0"/>
+    </linearGradient>
+    <linearGradient id="lip" x1="286" y1="234" x2="735" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#59616a"/>
+      <stop offset="1" stop-color="#343a40"/>
+    </linearGradient>
+    <linearGradient id="can" x1="308" y1="292" x2="720" y2="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4a5158"/>
+      <stop offset="1" stop-color="#20252a"/>
+    </linearGradient>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="30" flood-color="#516176" flood-opacity="0.25"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#101820" flood-opacity="0.20"/>
+    </filter>
+    <filter id="paper-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#56606b" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+
+  <rect x="64" y="64" width="896" height="896" rx="210" fill="url(#background)"/>
+  <rect x="64" y="64" width="896" height="896" rx="210" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="10"/>
+
+  <g filter="url(#paper-shadow)">
+    <rect x="345" y="262" width="205" height="142" rx="26" fill="#fff8dd" transform="rotate(-10 447.5 333)"/>
+    <rect x="484" y="242" width="206" height="146" rx="26" fill="#e6f7ec" transform="rotate(10 587 315)"/>
+    <path d="M386 318h96M380 354h118M534 304h96M546 340h78" fill="none" stroke="#748191" stroke-width="12" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <g transform="translate(235 218) scale(23)" filter="url(#soft-shadow)">
+    <path fill="url(#can)" d="M20 6a1 1 0 0 1 .117 1.993l-.117 .007h-.081l-.919 11a3 3 0 0 1 -2.824 2.995l-.176 .005h-8c-1.598 0 -2.904 -1.249 -2.992 -2.75l-.005 -.167l-.923 -11.083h-.08a1 1 0 0 1 -.117 -1.993l.117 -.007zm-10 4a1 1 0 0 0 -1 1v6a1 1 0 0 0 2 0v-6a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v6a1 1 0 0 0 2 0v-6a1 1 0 0 0 -1 -1"/>
+    <path fill="url(#lip)" d="M14 2a2 2 0 0 1 2 2a1 1 0 0 1 -1.993 .117l-.007 -.117h-4l-.007 .117a1 1 0 0 1 -1.993 -.117a2 2 0 0 1 1.85 -1.995l.15 -.005z"/>
+  </g>
+</svg>

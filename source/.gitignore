@@ -1,0 +1,8 @@
+.DS_Store
+.build/
+DerivedData/
+build/
+Resources/AppIcon.iconset/
+*.xcuserstate
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
