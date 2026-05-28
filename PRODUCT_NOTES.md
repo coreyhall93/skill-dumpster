@@ -2,13 +2,18 @@
 
 ## Current Product Shape
 
-Skill Dumpster is currently a local skill browser and backup utility. It is useful for:
+Skill Dumpster v2.3 is currently a local skill browser and backup utility with a Native Premium Mac interface. It is useful for:
 
 - Finding skills across known local sources.
 - Inspecting a skill's description, path, size, modified date, file count, and content hash.
 - Opening a skill in Finder.
 - Opening `SKILL.md` for editing.
 - Creating and deleting iCloud-backed zip snapshots.
+- Reviewing source meanings, backup behavior, dumpster lingo, and shortcuts from the lightweight Help window.
+
+The v2.3 redesign keeps the v1 feature set intact while breaking the original three-pane screenshot shell: compact high-contrast source rail, cleaner detail-first heap workspace, snapshot shelf, inspector/settings swap, warmer neutral palette, flatter surfaces, more comfortable line spacing, clearer sidebar/source semantics, spring-based transitions, and small status moments such as "Tossed" backup completion.
+
+Version 1 remains archived as Git tag `v1.0.0`.
 
 ## What It Needs To Feel Complete
 

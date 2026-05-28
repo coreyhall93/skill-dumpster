@@ -28,7 +28,7 @@ enum RummageSection: String, CaseIterable, Identifiable {
         case .plugin: "shippingbox"
         case .system: "lock"
         case .fresh: "sparkles"
-        case .tossed: "trash"
+        case .tossed: "archivebox"
         }
     }
 
@@ -77,6 +77,8 @@ final class AppModel: ObservableObject {
     @Published var statusMessage = "Rummaging through the dumpster."
     @Published var isRefreshing = false
     @Published var isBackingUp = false
+    @Published var isHelpPresented = false
+    @Published private(set) var backupSuccessTick = 0
 
     private let scanner = SkillScanner()
     private let userDefaults: UserDefaults
@@ -103,6 +105,7 @@ final class AppModel: ObservableObject {
 
     func refresh() async {
         isRefreshing = true
+        statusMessage = "Rummaging through the heap."
         defer { isRefreshing = false }
 
         do {
@@ -119,7 +122,7 @@ final class AppModel: ObservableObject {
             snapshots = foundSnapshots
             rebuildViewState()
 
-            statusMessage = "Found \(skills.count) skills and \(snapshots.count) snapshots."
+            statusMessage = "Rummaged up \(skills.count) skills and \(snapshots.count) snapshots."
         } catch {
             statusMessage = error.localizedDescription
         }
@@ -127,6 +130,7 @@ final class AppModel: ObservableObject {
 
     func backUpAllSkills() async {
         isBackingUp = true
+        statusMessage = "Tossing \(skills.count) skills into a fresh snapshot."
         defer { isBackingUp = false }
 
         do {
@@ -139,7 +143,8 @@ final class AppModel: ObservableObject {
             snapshots = (try? backupService.snapshots()) ?? [snapshot]
             selectedSection = .tossed
             rebuildViewState()
-            statusMessage = "Dumped \(currentSkills.count) skills into \(snapshot.url.lastPathComponent)."
+            backupSuccessTick += 1
+            statusMessage = "Tossed \(currentSkills.count) skills into \(snapshot.url.lastPathComponent)."
         } catch {
             statusMessage = error.localizedDescription
         }
@@ -154,10 +159,14 @@ final class AppModel: ObservableObject {
 
             snapshots = try backupService.snapshots()
             rebuildViewState()
-            statusMessage = "Deleted \(snapshot.url.lastPathComponent)."
+            statusMessage = "Removed \(snapshot.url.lastPathComponent) from the heap."
         } catch {
             statusMessage = error.localizedDescription
         }
+    }
+
+    func showHelp() {
+        isHelpPresented = true
     }
 
     func select(_ skill: SkillRecord) {

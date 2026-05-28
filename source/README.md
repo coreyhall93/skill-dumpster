@@ -2,6 +2,8 @@
 
 Skill Dumpster is a native macOS utility for rummaging through local AI-agent skills and backing them up to iCloud Drive.
 
+This source package now builds Skill Dumpster v2.3. v1 is archived in the parent Git repository as tag `v1.0.0`; v2.3 keeps the same app name and bundle ID while redesigning the UI around Quiet Delight principles, a Native Premium structure, stronger native contrast, and restrained odd-utility moments.
+
 Skills are grouped by source:
 
 - `Codex Local` means a skill found in a local Codex skill folder.
@@ -39,6 +41,8 @@ If iCloud Drive is unavailable, it falls back to:
 
 The backup location can be changed from the sidebar Settings view. Custom backup locations are remembered locally and still store snapshots in a `Snapshots` subfolder.
 
+The Help menu contains `Skill Dumpster Help`, a lightweight SwiftUI help window covering sources, backups, snapshots, dumpster lingo, and keyboard shortcuts. The same help is reachable from the Settings sidebar.
+
 ## Build
 
 ```sh
@@ -53,3 +57,5 @@ Scripts/generate_app_icon.sh
 Scripts/package_app.sh
 open "build/Skill Dumpster.app"
 ```
+
+`Scripts/package_app.sh` writes app version `2.3` and build `5` into the generated Info.plist.

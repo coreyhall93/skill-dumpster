@@ -2,6 +2,8 @@
 
 Built with Codex on May 27, 2026.
 
+Version 1 was archived before the v2 redesign with Git commit `Archive Skill Dumpster v1` and tag `v1.0.0`.
+
 ## Product Intent
 
 Skill Dumpster is a small, polished Mac utility for people who rely heavily on AI-agent skills and want a local, inspectable, iCloud-backed safety net.
@@ -29,6 +31,7 @@ Skill Dumpster is a small, polished Mac utility for people who rely heavily on A
 - Supports deleting snapshots from the GUI with confirmation.
 - Supports a compact sidebar mode that keeps only the navigation icons visible.
 - Keeps refresh and backup as toolbar actions; settings now live in the sidebar and replace the source list with a compact settings panel.
+- Provides a lightweight `Skill Dumpster Help` window from the macOS Help menu and Settings sidebar.
 - Shows the selected source/status name in the list header with an info affordance, and shifts the current count to the right.
 - Labels skill grouping as source/origin (`Codex Local`, `Claude`, `Grok`, `Developer`, `Codex Plugins`, `Codex System`) instead of implying editable metadata.
 - Separates sidebar source filters from status filters (`Fresh Trash`, `Tossed`). Fresh Trash means changed in the last 7 days; Tossed means captured in the latest snapshot.
@@ -38,4 +41,6 @@ Skill Dumpster is a small, polished Mac utility for people who rely heavily on A
 
 ## Design Direction
 
-Aim for the frictionless Mac feel of Bear and Croissant: native materials, quiet controls, fast row selection, soft panels, and enough character to feel owned rather than generic.
+v2.3 follows the local Quiet Delight design principles with a Native Premium structure: reduce friction, make the app feel instant, use readable typography as the foundation, keep chrome restrained, and break away from the original three-pane screenshot shell with a compact high-contrast source rail, cleaner detail-first heap workspace, snapshot shelf, inspector/settings swap, and visible but non-blocking odd utility moments.
+
+The target is still the frictionless Mac feel of Bear and Croissant: native materials, quiet controls, fast row selection, soft panels, and enough character to feel owned rather than generic. Skill Dumpster should feel like an odd little utility, not a novelty skin.

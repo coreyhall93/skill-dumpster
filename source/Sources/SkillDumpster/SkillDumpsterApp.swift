@@ -9,6 +9,10 @@ struct SkillDumpsterApp: App {
             ContentView()
                 .environmentObject(model)
                 .frame(minWidth: 1120, minHeight: 720)
+                .sheet(isPresented: $model.isHelpPresented) {
+                    HelpView()
+                        .environmentObject(model)
+                }
                 .task {
                     await model.refresh()
                 }
@@ -25,6 +29,13 @@ struct SkillDumpsterApp: App {
                     Task { await model.backUpAllSkills() }
                 }
                 .keyboardShortcut("b", modifiers: [.command, .shift])
+            }
+
+            CommandGroup(replacing: .help) {
+                Button("Skill Dumpster Help") {
+                    model.showHelp()
+                }
+                .keyboardShortcut("?", modifiers: [.command])
             }
         }
     }
