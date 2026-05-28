@@ -4,6 +4,8 @@ Skill Dumpster is a native macOS utility for rummaging through local AI-agent sk
 
 This source package now builds Skill Dumpster v2.3. v1 is archived in the parent Git repository as tag `v1.0.0`; v2.3 keeps the same app name and bundle ID while redesigning the UI around Quiet Delight principles, a Native Premium structure, stronger native contrast, and restrained odd-utility moments.
 
+The finalized v2.3 build is tagged `v2.3.0`, pushed to the private GitHub repo `coreyhall93/skill-dumpster`, and copied to `~/Applications/Skill Dumpster.app`.
+
 Skills are grouped by source:
 
 - `Codex Local` means a skill found in a local Codex skill folder.
@@ -59,3 +61,9 @@ open "build/Skill Dumpster.app"
 ```
 
 `Scripts/package_app.sh` writes app version `2.3` and build `5` into the generated Info.plist.
+
+To update the installed local copy after packaging:
+
+```sh
+ditto "build/Skill Dumpster.app" "$HOME/Applications/Skill Dumpster.app"
+```

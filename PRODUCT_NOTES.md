@@ -15,6 +15,8 @@ The v2.3 redesign keeps the v1 feature set intact while breaking the original th
 
 Version 1 remains archived as Git tag `v1.0.0`.
 
+The current v2.3 release is tagged `v2.3.0`, pushed to the private GitHub repo `coreyhall93/skill-dumpster`, and installed locally at `~/Applications/Skill Dumpster.app`.
+
 ## What It Needs To Feel Complete
 
 ### 1. Source Management

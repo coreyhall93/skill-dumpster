@@ -4,6 +4,8 @@ Built with Codex on May 27, 2026.
 
 Version 1 was archived before the v2 redesign with Git commit `Archive Skill Dumpster v1` and tag `v1.0.0`.
 
+The current finalized release is v2.3 build 5, committed as `Redesign Skill Dumpster v2.3`, tagged `v2.3.0`, pushed to the private GitHub repo `coreyhall93/skill-dumpster`, and copied locally to `~/Applications/Skill Dumpster.app`.
+
 ## Product Intent
 
 Skill Dumpster is a small, polished Mac utility for people who rely heavily on AI-agent skills and want a local, inspectable, iCloud-backed safety net.
@@ -43,4 +45,8 @@ Skill Dumpster is a small, polished Mac utility for people who rely heavily on A
 
 v2.3 follows the local Quiet Delight design principles with a Native Premium structure: reduce friction, make the app feel instant, use readable typography as the foundation, keep chrome restrained, and break away from the original three-pane screenshot shell with a compact high-contrast source rail, cleaner detail-first heap workspace, snapshot shelf, inspector/settings swap, and visible but non-blocking odd utility moments.
 
-The target is still the frictionless Mac feel of Bear and Croissant: native materials, quiet controls, fast row selection, soft panels, and enough character to feel owned rather than generic. Skill Dumpster should feel like an odd little utility, not a novelty skin.
+The target is still the frictionless Mac feel of polished native utilities: quiet controls, fast row selection, comfortable reading, restrained surfaces, and enough character to feel owned rather than generic. Skill Dumpster should feel like an odd little utility, not a novelty skin.
+
+## Documentation Intent
+
+These docs should stand on their own for a technically competent person with no prior context. Keep current-state facts in this file, build/install commands in `BUILD.md`, user-facing overview in `README.md`, and future product opportunities in `PRODUCT_NOTES.md`.

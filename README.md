@@ -6,6 +6,14 @@ Skill Dumpster v2.3 is a Native Premium redesign of the original utility: same l
 
 The Swift package lives in `source/`.
 
+## Current Release
+
+- Version: `2.3`
+- Build: `5`
+- Current release tag: `v2.3.0`
+- GitHub: [coreyhall93/skill-dumpster](https://github.com/coreyhall93/skill-dumpster) (private)
+- Installed local copy: `~/Applications/Skill Dumpster.app`
+
 ## Version Archive
 
 Version 1 is preserved in Git:
@@ -24,6 +32,12 @@ After building, the app bundle is at:
 source/build/Skill Dumpster.app
 ```
 
+The current packaged build has also been copied to:
+
+```sh
+~/Applications/Skill Dumpster.app
+```
+
 ## Build
 
 ```sh
@@ -31,6 +45,12 @@ cd source
 swift test
 Scripts/package_app.sh
 open "build/Skill Dumpster.app"
+```
+
+To refresh the installed local copy after packaging:
+
+```sh
+ditto "source/build/Skill Dumpster.app" "$HOME/Applications/Skill Dumpster.app"
 ```
 
 ## Why This Exists
