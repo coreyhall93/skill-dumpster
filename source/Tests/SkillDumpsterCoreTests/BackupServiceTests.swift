@@ -32,6 +32,21 @@ struct BackupServiceTests {
         #expect(!FileManager.default.fileExists(atPath: snapshot.url.path))
     }
 
+    @Test("defaults to the Sol project folder when it exists")
+    func defaultsToSolProjectFolder() throws {
+        let temporaryHome = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: temporaryHome) }
+
+        let solProject = temporaryHome.appendingPathComponent("Sol/02-Projects/skill-dumpster", isDirectory: true)
+        try FileManager.default.createDirectory(at: solProject, withIntermediateDirectories: true)
+
+        let backupService = BackupService(homeDirectory: temporaryHome)
+        let snapshots = try backupService.snapshotDirectory()
+
+        #expect(snapshots.path == solProject.appendingPathComponent("Snapshots").path)
+        #expect(FileManager.default.fileExists(atPath: snapshots.path))
+    }
+
     @Test("uses a custom backup directory when configured")
     func usesCustomBackupDirectory() throws {
         let temporaryHome = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)

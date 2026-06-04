@@ -79,12 +79,12 @@ struct SkillScannerTests {
         """.write(to: skillDirectory.appendingPathComponent("SKILL.md"), atomically: true, encoding: .utf8)
         try FileManager.default.createSymbolicLink(at: symlinkRoot, withDestinationURL: realRoot)
 
-        let scanner = SkillScanner(roots: [SkillRoot(url: symlinkRoot, kind: .developer, recursive: true)])
+        let scanner = SkillScanner(roots: [SkillRoot(url: symlinkRoot, kind: .sol, recursive: true)])
         let skills = try scanner.scan()
 
         #expect(skills.count == 1)
         #expect(skills.first?.slug == "example-skill")
-        #expect(skills.first?.kind == .developer)
+        #expect(skills.first?.kind == .sol)
     }
 
     @Test("can scan hidden skill folders in recursive roots")
@@ -105,7 +105,7 @@ struct SkillScannerTests {
             roots: [
                 SkillRoot(
                     url: temporary,
-                    kind: .developer,
+                    kind: .sol,
                     recursive: true,
                     includeHiddenDirectories: true
                 )
@@ -115,10 +115,10 @@ struct SkillScannerTests {
 
         #expect(skills.count == 1)
         #expect(skills.first?.slug == "hidden-skill")
-        #expect(skills.first?.kind == .developer)
+        #expect(skills.first?.kind == .sol)
     }
 
-    @Test("default roots include Codex, Claude, Grok, and Developer sources")
+    @Test("default roots include Codex, Claude, Grok, and Sol sources")
     func defaultRootsIncludeKnownAgentSources() {
         let home = URL(fileURLWithPath: "/Users/example", isDirectory: true)
         let roots = SkillScanner.defaultRoots(homeDirectory: home)
@@ -134,7 +134,7 @@ struct SkillScannerTests {
         #expect(rootMap["/Users/example/.grok/skills"] == .grok)
         #expect(rootMap["/Users/example/.grok/bundled/skills"] == .grok)
         #expect(rootMap["/Users/example/.grok/marketplace-cache"] == .grok)
-        #expect(rootMap["/Users/example/Developer"] == .developer)
-        #expect(roots.first { $0.url.path == "/Users/example/Developer" }?.includeHiddenDirectories == true)
+        #expect(rootMap["/Users/example/Sol"] == .sol)
+        #expect(roots.first { $0.url.path == "/Users/example/Sol" }?.includeHiddenDirectories == true)
     }
 }

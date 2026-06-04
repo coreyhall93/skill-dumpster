@@ -1,0 +1,5 @@
+# Skill snapshots written by the app into its project home. User backup data,
+# not source. Synced + backed up via Sol's Syncthing/restic layers, not Git.
+Snapshots/
+
+.DS_Store

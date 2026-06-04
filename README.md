@@ -1,6 +1,6 @@
 # Skill Dumpster
 
-Native macOS app for browsing and backing up AI-agent skills to iCloud Drive.
+Native macOS app for browsing and backing up AI-agent skills into the Sol workspace.
 
 Skill Dumpster v2.3 is a Native Premium redesign of the original utility: same local-first scanning and backup behavior, but with a higher-contrast source rail, cleaner detail-first heap workspace, snapshot shelf, inspector/settings swap, Geist typography, springy transitions, a lighter Help surface, and restrained odd-utility personality.
 
@@ -55,6 +55,6 @@ ditto "source/build/Skill Dumpster.app" "$HOME/Applications/Skill Dumpster.app"
 
 ## Why This Exists
 
-Skill Dumpster keeps local AI-agent skills visible, inspectable, and backed up as timestamped zip snapshots. It scans Codex, Claude, Grok, plugin/cache, and `~/Developer` skill folders.
+Skill Dumpster keeps local AI-agent skills visible, inspectable, and backed up as timestamped zip snapshots. It scans Codex, Claude, Grok, plugin/cache, and `~/Sol` skill folders.
 
 The v2.3 design direction is Native Premium first: practical, calm, and Mac-native, with stronger contrast, flatter surfaces, fewer shadows, and oddness kept to copy, motion, empty states, snapshots, and Help.

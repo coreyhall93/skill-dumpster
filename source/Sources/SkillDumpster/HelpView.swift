@@ -41,12 +41,12 @@ struct HelpView: View {
                     }
 
                     HelpSection(title: "Sources", symbolName: "folder.badge.gearshape") {
-                        HelpText("The source filters are origins, not editable tags. Codex Local, Claude, Grok, Developer, Codex Plugins, and Codex System are inferred from the folder where each SKILL.md was found.")
+                        HelpText("The source filters are origins, not editable tags. Codex Local, Claude, Grok, Sol, Codex Plugins, and Codex System are inferred from the folder where each SKILL.md was found.")
                         HelpText("Open Settings from the sidebar to review every scanned source folder and jump to it in Finder.")
                     }
 
-                    HelpSection(title: "Backups And Snapshots", symbolName: "externaldrive.badge.icloud") {
-                        HelpText("Back Up creates a timestamped zip snapshot of all currently scanned skills. The default location is iCloud Drive, with a Documents fallback if iCloud is unavailable.")
+                    HelpSection(title: "Backups And Snapshots", symbolName: "externaldrive") {
+                        HelpText("Back Up creates a timestamped zip snapshot of all currently scanned skills. The default location is the Sol workspace (~/Sol/02-Projects/skill-dumpster/Snapshots), with a Documents fallback if Sol is unavailable.")
                         HelpText("The backup location can be changed or reset in Settings. Snapshot rows in the sidebar can be opened or deleted with confirmation.")
                     }
 

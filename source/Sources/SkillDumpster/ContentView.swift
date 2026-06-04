@@ -195,7 +195,7 @@ private struct BackupToolbarChip: View {
         if model.isBackingUp {
             return "archivebox"
         }
-        return "externaldrive.badge.icloud"
+        return "externaldrive"
     }
 }
 
@@ -665,7 +665,7 @@ private struct InspectorPanel: View {
                                 model.edit(skill)
                             }
 
-                            DetailButton(title: "Back Up", symbolName: "externaldrive.badge.icloud") {
+                            DetailButton(title: "Back Up", symbolName: "externaldrive") {
                                 Task { await model.backUpAllSkills() }
                             }
                             .disabled(model.isBackingUp)
@@ -791,7 +791,7 @@ private struct SkillKindGlyph: View {
             "sparkles.rectangle.stack"
         case .grok:
             "brain.head.profile"
-        case .developer:
+        case .sol:
             "hammer"
         case .plugin:
             "shippingbox"
@@ -1002,13 +1002,13 @@ private struct BackupLocationSettings: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 11) {
             HStack(spacing: 10) {
-                Image(systemName: "icloud.and.arrow.up")
+                Image(systemName: "externaldrive")
                     .font(DumpsterFont.fixed(15, .semibold))
                     .foregroundStyle(DumpsterTheme.secondaryText)
                     .frame(width: 24)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(model.isUsingCustomBackupFolder ? "Custom folder" : "Default iCloud folder")
+                    Text(model.isUsingCustomBackupFolder ? "Custom folder" : "Default Sol folder")
                         .font(DumpsterFont.callout(.semibold))
                         .foregroundStyle(DumpsterTheme.primaryText)
 
@@ -1032,7 +1032,7 @@ private struct BackupLocationSettings: View {
                 }
 
                 if model.isUsingCustomBackupFolder {
-                    SmallIconButton(symbolName: "arrow.uturn.backward", help: "Use default iCloud backup folder") {
+                    SmallIconButton(symbolName: "arrow.uturn.backward", help: "Use default Sol backup folder") {
                         model.useDefaultBackupFolder()
                     }
                 }
@@ -1100,7 +1100,7 @@ private struct SourceSettingsRow: View {
             "sparkles.rectangle.stack"
         case .grok:
             "brain.head.profile"
-        case .developer:
+        case .sol:
             "hammer"
         case .plugin:
             "shippingbox"

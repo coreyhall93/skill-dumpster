@@ -35,17 +35,19 @@ public struct BackupService: @unchecked Sendable {
             return baseDirectoryOverride
         }
 
-        let iCloudDrive = homeDirectory.appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs")
+        let solProject = homeDirectory
+            .appendingPathComponent("Sol/02-Projects/skill-dumpster", isDirectory: true)
 
-        let base: URL
-        if fileManager.fileExists(atPath: iCloudDrive.path) {
-            base = iCloudDrive
+        let backupDirectory: URL
+        if fileManager.fileExists(atPath: solProject.path) {
+            // Co-locate snapshots with the app's project home in Sol. Sol syncs
+            // across machines (Syncthing) and is backed up (restic + Time Machine),
+            // so snapshots ride those layers instead of iCloud.
+            backupDirectory = solProject
         } else {
-            base = homeDirectory.appendingPathComponent("Documents")
+            // Fallback for a machine where Sol is not present yet.
+            backupDirectory = homeDirectory.appendingPathComponent("Documents/Skill Dumpster", isDirectory: true)
         }
-
-        let backupDirectory = base
-            .appendingPathComponent("Skill Dumpster", isDirectory: true)
 
         try fileManager.createDirectory(at: backupDirectory, withIntermediateDirectories: true)
         return backupDirectory

@@ -8,7 +8,7 @@ Skill Dumpster v2.3 is currently a local skill browser and backup utility with a
 - Inspecting a skill's description, path, size, modified date, file count, and content hash.
 - Opening a skill in Finder.
 - Opening `SKILL.md` for editing.
-- Creating and deleting iCloud-backed zip snapshots.
+- Creating and deleting Sol-backed zip snapshots.
 - Reviewing source meanings, backup behavior, dumpster lingo, and shortcuts from the lightweight Help window.
 
 The v2.3 redesign keeps the v1 feature set intact while breaking the original three-pane screenshot shell: compact high-contrast source rail, cleaner detail-first heap workspace, snapshot shelf, inspector/settings swap, warmer neutral palette, flatter surfaces, more comfortable line spacing, clearer sidebar/source semantics, spring-based transitions, and small status moments such as "Tossed" backup completion.
@@ -32,7 +32,7 @@ Examples:
 
 This is the biggest missing piece if the promise is "manage all skills no matter where they live."
 
-Today, source labels are derived from hard-coded scanner roots in `SkillScanner.defaultRoots`. The built-in sources cover Codex, Claude, Grok, plugin caches, and `~/Developer`, but they are not editable from the GUI yet.
+Today, source labels are derived from hard-coded scanner roots in `SkillScanner.defaultRoots`. The built-in sources cover Codex, Claude, Grok, plugin caches, and `~/Sol`, but they are not editable from the GUI yet.
 
 ### 2. Skill Actions
 
@@ -94,7 +94,7 @@ Settings should graduate from a popover into a real preferences surface when the
 - Backup destination
 - Auto-backup frequency
 - Sources
-- iCloud status
+- Backup/sync status
 - Excluded folders
 - Theme behavior
 

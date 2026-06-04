@@ -4,7 +4,7 @@ public enum SkillKind: String, Codable, CaseIterable, Sendable {
     case personal = "Codex Local"
     case claude = "Claude"
     case grok = "Grok"
-    case developer = "Developer"
+    case sol = "Sol"
     case system = "Codex System"
     case plugin = "Codex Plugins"
 
@@ -12,7 +12,7 @@ public enum SkillKind: String, Codable, CaseIterable, Sendable {
         switch self {
         case .system, .plugin:
             return true
-        case .personal, .claude, .grok, .developer:
+        case .personal, .claude, .grok, .sol:
             return false
         }
     }
@@ -25,7 +25,7 @@ public enum SkillKind: String, Codable, CaseIterable, Sendable {
             return 1
         case .grok:
             return 2
-        case .developer:
+        case .sol:
             return 3
         case .plugin:
             return 4

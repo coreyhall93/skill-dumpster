@@ -7,7 +7,7 @@ enum RummageSection: String, CaseIterable, Identifiable {
     case local = "Codex Local"
     case claude = "Claude"
     case grok = "Grok"
-    case developer = "Developer"
+    case sol = "Sol"
     case plugin = "Codex Plugins"
     case system = "Codex System"
     case fresh = "Fresh Trash"
@@ -15,7 +15,7 @@ enum RummageSection: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    static let sourceCases: [RummageSection] = [.all, .local, .claude, .grok, .developer, .plugin, .system]
+    static let sourceCases: [RummageSection] = [.all, .local, .claude, .grok, .sol, .plugin, .system]
     static let statusCases: [RummageSection] = [.fresh, .tossed]
 
     var symbolName: String {
@@ -24,7 +24,7 @@ enum RummageSection: String, CaseIterable, Identifiable {
         case .local: "internaldrive"
         case .claude: "sparkles.rectangle.stack"
         case .grok: "brain.head.profile"
-        case .developer: "hammer"
+        case .sol: "hammer"
         case .plugin: "shippingbox"
         case .system: "lock"
         case .fresh: "sparkles"
@@ -42,8 +42,8 @@ enum RummageSection: String, CaseIterable, Identifiable {
             "Skills from Claude skill and plugin folders."
         case .grok:
             "Skills from Grok local, bundled, and marketplace folders."
-        case .developer:
-            "Skills found under ~/Developer."
+        case .sol:
+            "Skills found under ~/Sol."
         case .plugin:
             "Skills shipped by installed Codex plugins."
         case .system:
@@ -216,7 +216,7 @@ final class AppModel: ObservableObject {
     func useDefaultBackupFolder() {
         customBackupFolderURL = nil
         userDefaults.removeObject(forKey: backupFolderDefaultsKey)
-        statusMessage = "Backup location reset to the default iCloud folder."
+        statusMessage = "Backup location reset to the default Sol folder."
         Task { await refresh() }
     }
 
@@ -260,8 +260,8 @@ final class AppModel: ObservableObject {
             skill.kind == .claude
         case .grok:
             skill.kind == .grok
-        case .developer:
-            skill.kind == .developer
+        case .sol:
+            skill.kind == .sol
         case .plugin:
             skill.kind == .plugin
         case .system:

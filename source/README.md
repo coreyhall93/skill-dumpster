@@ -1,6 +1,6 @@
 # Skill Dumpster
 
-Skill Dumpster is a native macOS utility for rummaging through local AI-agent skills and backing them up to iCloud Drive.
+Skill Dumpster is a native macOS utility for rummaging through local AI-agent skills and backing them up into the Sol workspace.
 
 This source package now builds Skill Dumpster v2.3. v1 is archived in the parent Git repository as tag `v1.0.0`; v2.3 keeps the same app name and bundle ID while redesigning the UI around Quiet Delight principles, a Native Premium structure, stronger native contrast, and restrained odd-utility moments.
 
@@ -11,7 +11,7 @@ Skills are grouped by source:
 - `Codex Local` means a skill found in a local Codex skill folder.
 - `Claude` means a skill found in Claude's local skills or plugin folders.
 - `Grok` means a skill found in Grok's local, bundled, or marketplace-cache folders.
-- `Developer` means a skill found under `~/Developer`, including project-local hidden skill folders such as `.claude/skills`.
+- `Sol` means a skill found under `~/Sol`, including project-local hidden skill folders such as `.claude/skills`.
 - `Codex Plugins` means a skill shipped by an installed Codex plugin.
 - `Codex System` means a built-in Codex skill.
 
@@ -31,13 +31,13 @@ It scans common skill locations:
 - `~/.grok/skills`
 - `~/.grok/bundled/skills`
 - `~/.grok/marketplace-cache/**/skills`
-- `~/Developer/**/SKILL.md` including hidden skill folders, with known build/dependency folders pruned.
+- `~/Sol/**/SKILL.md` including hidden skill folders, with known build/dependency folders pruned.
 
 By default, backups are written as timestamped zip snapshots to:
 
-`~/Library/Mobile Documents/com~apple~CloudDocs/Skill Dumpster/Snapshots`
+`~/Sol/02-Projects/skill-dumpster/Snapshots`
 
-If iCloud Drive is unavailable, it falls back to:
+This keeps snapshots beside the app's project home, so they ride Sol's sync (Syncthing) and backup (restic + Time Machine) layers. If Sol is unavailable, it falls back to:
 
 `~/Documents/Skill Dumpster/Snapshots`
 

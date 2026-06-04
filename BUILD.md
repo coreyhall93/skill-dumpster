@@ -19,7 +19,7 @@
 ## Commands
 
 ```sh
-cd ~/Developer/AI-Brain/02-Projects/skill-dumpster/source
+cd ~/Sol/02-Projects/skill-dumpster/source
 swift test
 Scripts/generate_app_icon.sh
 Scripts/package_app.sh
@@ -50,7 +50,7 @@ They can be recreated from source at any time.
 ## Release Checklist
 
 ```sh
-cd ~/Developer/AI-Brain/02-Projects/skill-dumpster/source
+cd ~/Sol/02-Projects/skill-dumpster/source
 swift test
 Scripts/package_app.sh
 ditto "build/Skill Dumpster.app" "$HOME/Applications/Skill Dumpster.app"

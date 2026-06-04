@@ -25,8 +25,8 @@ public struct SkillScanner: @unchecked Sendable {
             SkillRoot(url: homeDirectory.appendingPathComponent(".grok/bundled/skills"), kind: .grok),
             SkillRoot(url: homeDirectory.appendingPathComponent(".grok/marketplace-cache"), kind: .grok, recursive: true),
             SkillRoot(
-                url: homeDirectory.appendingPathComponent("Developer"),
-                kind: .developer,
+                url: homeDirectory.appendingPathComponent("Sol"),
+                kind: .sol,
                 recursive: true,
                 includeHiddenDirectories: true
             )
