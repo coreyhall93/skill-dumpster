@@ -16,7 +16,10 @@ struct SkillDumpsterApp: App {
         }
         .defaultSize(width: 1240, height: 780)
         .commands {
-            CommandGroup(replacing: .newItem) {}
+            CommandGroup(replacing: .newItem) {
+                Button("New Collection…") { model.beginNewCollection() }
+                    .keyboardShortcut("n")
+            }
 
             CommandGroup(after: .newItem) {
                 Button("Refresh Skills") {

@@ -1,5 +1,6 @@
 # Snapshots written by the app when its backup folder points here.
 Snapshots/
+collections.json
 
 # Personal working notes, kept beside the code but not published.
 FUTURE_COREY.md

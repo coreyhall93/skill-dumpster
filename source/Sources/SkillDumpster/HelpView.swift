@@ -33,6 +33,11 @@ struct HelpView: View {
                         Text("A skill linked into several agents shows up once. Byte-identical copies collapse into one entry that lists the other copies.")
                     }
 
+                    topic("Collections", "square.stack") {
+                        Text("Group skills you use together. Press ⌘N to make one, then drag skills onto it in the sidebar or use Add to Collection from a skill's right-click menu. Right-click a collection to rename, delete, or export it as a zip.")
+                        Text("Collections are saved in collections.json inside your backup folder, so they travel with it.")
+                    }
+
                     topic("Dumpster lingo", "sparkles") {
                         term("Fresh Trash", "Skills changed in the last 7 days.")
                         term("Tossed", "Skills unchanged since your latest snapshot.")
@@ -40,6 +45,7 @@ struct HelpView: View {
                     }
 
                     topic("Shortcuts", "keyboard") {
+                        term("⌘N", "New collection")
                         term("⌘R", "Rescan skill folders")
                         term("⇧⌘B", "Back up all skills")
                         term("⌘F", "Search")

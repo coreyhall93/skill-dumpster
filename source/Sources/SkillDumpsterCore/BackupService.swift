@@ -80,22 +80,22 @@ public struct BackupService: @unchecked Sendable {
     }
 
     public func createSnapshot(skills: [SkillRecord]) throws -> SnapshotInfo {
+        let stamp = SkillFormatting.snapshotDateFormatter.string(from: Date())
+        let archiveURL = try snapshotDirectory().appendingPathComponent("skill-dumpster-\(stamp).zip")
+        return try writeArchive(skills: skills, to: archiveURL)
+    }
+
+    /// Zips the given skills plus a manifest to any location, such as a
+    /// collection exported for sharing.
+    @discardableResult
+    public func writeArchive(skills: [SkillRecord], to archiveURL: URL) throws -> SnapshotInfo {
         guard !skills.isEmpty else { throw BackupError.noSkills }
 
-        let snapshotsURL = try snapshotDirectory()
-        let stamp = SkillFormatting.snapshotDateFormatter.string(from: Date())
-        let snapshotName = "skill-dumpster-\(stamp)"
-        let stagingURL = fileManager.temporaryDirectory.appendingPathComponent(snapshotName, isDirectory: true)
-        let archiveURL = snapshotsURL.appendingPathComponent("\(snapshotName).zip")
-
-        if fileManager.fileExists(atPath: stagingURL.path) {
-            try fileManager.removeItem(at: stagingURL)
-        }
-
+        let rootName = archiveURL.deletingPathExtension().lastPathComponent
+        let stagingParent = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let stagingURL = stagingParent.appendingPathComponent(rootName, isDirectory: true)
         try fileManager.createDirectory(at: stagingURL, withIntermediateDirectories: true)
-        defer {
-            try? fileManager.removeItem(at: stagingURL)
-        }
+        defer { try? fileManager.removeItem(at: stagingParent) }
 
         let manifest = SnapshotManifest(
             appName: "Skill Dumpster",
@@ -113,21 +113,23 @@ public struct BackupService: @unchecked Sendable {
         try fileManager.createDirectory(at: skillsRoot, withIntermediateDirectories: true)
 
         for skill in skills {
-            let sourceURL = URL(fileURLWithPath: skill.path)
             let kindDirectory = skillsRoot.appendingPathComponent(skill.kind.rawValue, isDirectory: true)
             try fileManager.createDirectory(at: kindDirectory, withIntermediateDirectories: true)
 
             var destinationURL = kindDirectory.appendingPathComponent(skill.slug, isDirectory: true)
             if fileManager.fileExists(atPath: destinationURL.path) {
-                destinationURL = kindDirectory.appendingPathComponent("\(skill.slug)-\(SkillFormatting.compactHash(skill.stats.contentHash))", isDirectory: true)
+                destinationURL = kindDirectory.appendingPathComponent(
+                    "\(skill.slug)-\(SkillFormatting.compactHash(skill.stats.contentHash))",
+                    isDirectory: true
+                )
             }
-            try fileManager.copyItem(at: sourceURL, to: destinationURL)
+            try fileManager.copyItem(at: URL(fileURLWithPath: skill.path), to: destinationURL)
         }
 
+        try fileManager.createDirectory(at: archiveURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         if fileManager.fileExists(atPath: archiveURL.path) {
             try fileManager.removeItem(at: archiveURL)
         }
-
         try archive(stagingURL: stagingURL, archiveURL: archiveURL)
 
         let values = try archiveURL.resourceValues(forKeys: [.contentModificationDateKey, .fileSizeKey])

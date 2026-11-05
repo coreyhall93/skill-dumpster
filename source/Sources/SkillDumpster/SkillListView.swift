@@ -11,9 +11,19 @@ struct SkillListView: View {
         List(skills, selection: $model.selectedSkillID) { skill in
             SkillRow(skill: skill, isFresh: model.isFresh(skill))
                 .tag(skill.id)
+                .draggable(skill.id) {
+                    Label(skill.displayName, systemImage: skill.kind.symbolName)
+                        .padding(6)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 6))
+                }
                 .contextMenu {
                     Button("Show in Finder") { model.reveal(URL(fileURLWithPath: skill.path)) }
                     Button("Open SKILL.md") { model.open(URL(fileURLWithPath: skill.skillFilePath)) }
+                    Divider()
+                    CollectionMenu(skill: skill)
+                    if case .collection(let id) = model.selection, let collection = model.collection(id) {
+                        Button("Remove from “\(collection.name)”") { model.remove(skill, from: id) }
+                    }
                     Divider()
                     Button("Copy Path") { model.copyToPasteboard(skill.path) }
                 }
@@ -36,11 +46,17 @@ struct SkillListView: View {
             ContentUnavailableView {
                 Label("No results for “\(model.searchText)”", systemImage: "magnifyingglass")
             } description: {
-                Text("Nothing in \(model.selection.title) matches this search.")
+                Text("Nothing in \(model.title(for: model.selection)) matches this search.")
             } actions: {
                 Button("Clear Search") { model.searchText = "" }
                     .keyboardShortcut(.cancelAction)
             }
+        } else if case .collection = model.selection {
+            ContentUnavailableView(
+                "This collection is empty",
+                systemImage: "square.stack",
+                description: Text("Drag skills onto it in the sidebar, or right-click a skill and choose Add to Collection.")
+            )
         } else if model.selection == .tossed {
             ContentUnavailableView(
                 "Nothing tossed yet",

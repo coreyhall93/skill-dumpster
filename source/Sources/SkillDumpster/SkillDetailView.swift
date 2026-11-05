@@ -97,6 +97,15 @@ private struct SkillDetail: View {
                     if model.isFresh(skill) {
                         Pill(text: "Fresh", systemImage: "sparkles", tint: .green)
                     }
+                    ForEach(model.collections(containing: skill)) { collection in
+                        Button {
+                            model.selection = .collection(collection.id)
+                        } label: {
+                            Pill(text: collection.name, systemImage: "square.stack", tint: .accentColor)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Show this collection")
+                    }
                 }
                 .padding(.top, 2)
             }
@@ -123,6 +132,14 @@ private struct SkillDetail: View {
             } label: {
                 Label("Copy Path", systemImage: "doc.on.doc")
             }
+
+            Menu {
+                CollectionMenuItems(skill: skill)
+            } label: {
+                Label("Collections", systemImage: "square.stack")
+            }
+            .menuIndicator(.hidden)
+            .fixedSize()
         }
         .controlSize(.large)
     }

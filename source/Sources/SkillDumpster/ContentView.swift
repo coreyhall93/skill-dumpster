@@ -17,9 +17,26 @@ struct ContentView: View {
             SkillDetailView()
         }
         .searchable(text: $model.searchText, placement: .toolbar, prompt: "Search the heap")
-        .navigationTitle(model.selection.title)
+        .navigationTitle(model.title(for: model.selection))
         .navigationSubtitle(subtitle)
         .toolbar { MainToolbar() }
+        .alert(
+            model.collectionNaming?.title ?? "",
+            isPresented: Binding(
+                get: { model.collectionNaming != nil },
+                set: { if !$0 { model.collectionNaming = nil } }
+            )
+        ) {
+            TextField("Name", text: Binding(
+                get: { model.collectionNaming?.draft ?? "" },
+                set: { model.collectionNaming?.draft = $0 }
+            ))
+            Button("Save") { model.commitCollectionName() }
+                .keyboardShortcut(.defaultAction)
+            Button("Cancel", role: .cancel) { model.collectionNaming = nil }
+        } message: {
+            Text("Group skills you use together, like a project or a workflow.")
+        }
         .alert(
             "Something went wrong",
             isPresented: Binding(

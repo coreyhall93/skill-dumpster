@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import Observation
 import SkillDumpsterCore
+import UniformTypeIdentifiers
 
 /// A filter in the sidebar.
 enum SidebarItem: Hashable {
@@ -9,15 +10,7 @@ enum SidebarItem: Hashable {
     case fresh
     case tossed
     case kind(SkillKind)
-
-    var title: String {
-        switch self {
-        case .all: "All Skills"
-        case .fresh: "Fresh Trash"
-        case .tossed: "Tossed"
-        case .kind(let kind): kind.rawValue
-        }
-    }
+    case collection(UUID)
 
     var help: String {
         switch self {
@@ -25,7 +18,23 @@ enum SidebarItem: Hashable {
         case .fresh: "Skills changed in the last 7 days."
         case .tossed: "Skills unchanged since the latest snapshot."
         case .kind(let kind): kind.summary
+        case .collection: "A collection you made. Drag skills here to add them."
         }
+    }
+}
+
+struct CollectionNaming {
+    enum Mode {
+        case create(adding: SkillRecord.ID?)
+        case rename(UUID)
+    }
+
+    let mode: Mode
+    var draft: String
+
+    var title: String {
+        if case .rename = mode { return "Rename Collection" }
+        return "New Collection"
     }
 }
 
@@ -44,6 +53,10 @@ final class AppModel {
     private(set) var snapshots: [SnapshotInfo] = []
     private(set) var customFolders: [URL] = []
     private(set) var customBackupFolder: URL?
+    private(set) var collections: [SkillCollection] = []
+
+    /// Drives the name prompt for creating or renaming a collection.
+    var collectionNaming: CollectionNaming?
     private(set) var isRefreshing = false
     private(set) var isBackingUp = false
     private(set) var hasLoaded = false
@@ -72,6 +85,17 @@ final class AppModel {
         }
         customFolders = (defaults.stringArray(forKey: Keys.customFolders) ?? [])
             .map { URL(fileURLWithPath: $0, isDirectory: true) }
+        loadCollections()
+    }
+
+    func title(for item: SidebarItem) -> String {
+        switch item {
+        case .all: "All Skills"
+        case .fresh: "Fresh Trash"
+        case .tossed: "Tossed"
+        case .kind(let kind): kind.rawValue
+        case .collection(let id): collection(id)?.name ?? "Collection"
+        }
     }
 
     // MARK: Derived state
@@ -105,6 +129,11 @@ final class AppModel {
 
     var backupFolder: URL {
         customBackupFolder ?? BackupService.defaultBackupDirectory(homeDirectory: fileManager.homeDirectoryForCurrentUser)
+    }
+
+    /// Collections live beside the snapshots, so they travel with the backup folder.
+    var collectionsFile: URL {
+        backupFolder.appendingPathComponent("collections.json")
     }
 
     var snapshotFolder: URL {
@@ -185,19 +214,150 @@ final class AppModel {
 
     // MARK: Settings
 
+    // MARK: Collections
+
+    func collection(_ id: UUID) -> SkillCollection? {
+        collections.first { $0.id == id }
+    }
+
+    func collections(containing skill: SkillRecord) -> [SkillCollection] {
+        collections.filter { $0.contains(skill) }
+    }
+
+    func beginNewCollection(adding skill: SkillRecord? = nil) {
+        collectionNaming = CollectionNaming(mode: .create(adding: skill?.id), draft: "")
+    }
+
+    func beginRename(_ collection: SkillCollection) {
+        collectionNaming = CollectionNaming(mode: .rename(collection.id), draft: collection.name)
+    }
+
+    func commitCollectionName() {
+        guard let naming = collectionNaming else { return }
+        collectionNaming = nil
+        let name = naming.draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
+
+        switch naming.mode {
+        case .create(let skillID):
+            var collection = SkillCollection(name: name)
+            if let skillID, let skill = skills.first(where: { $0.id == skillID }) {
+                collection.add(skill)
+            }
+            collections.append(collection)
+            selection = .collection(collection.id)
+        case .rename(let id):
+            updateCollection(id) { $0.name = name }
+        }
+        saveCollections()
+    }
+
+    func deleteCollection(_ id: UUID) {
+        collections.removeAll { $0.id == id }
+        if selection == .collection(id) { selection = .all }
+        saveCollections()
+    }
+
+    func toggle(_ skill: SkillRecord, in id: UUID) {
+        updateCollection(id) { collection in
+            if collection.contains(skill) { collection.remove(skill) } else { collection.add(skill) }
+        }
+        saveCollections()
+    }
+
+    func add(skillIDs: [String], to id: UUID) -> Bool {
+        let dropped = skills.filter { skillIDs.contains($0.id) }
+        guard !dropped.isEmpty else { return false }
+        updateCollection(id) { collection in dropped.forEach { collection.add($0) } }
+        saveCollections()
+        return true
+    }
+
+    func remove(_ skill: SkillRecord, from id: UUID) {
+        updateCollection(id) { $0.remove(skill) }
+        saveCollections()
+    }
+
+    func export(_ collection: SkillCollection) {
+        let members = collection.resolve(in: skills)
+        guard !members.isEmpty else {
+            errorMessage = "“\(collection.name)” has no skills on this Mac to export."
+            return
+        }
+
+        let panel = NSSavePanel()
+        panel.title = "Export Collection"
+        panel.nameFieldStringValue = "\(collection.name).zip"
+        panel.allowedContentTypes = [.zip]
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        let backup = makeBackupService()
+        Task {
+            do {
+                try await Task.detached(priority: .userInitiated) {
+                    try backup.writeArchive(skills: members, to: url)
+                }.value
+                reveal(url)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func updateCollection(_ id: UUID, _ change: (inout SkillCollection) -> Void) {
+        guard let index = collections.firstIndex(where: { $0.id == id }) else { return }
+        change(&collections[index])
+    }
+
+    private func loadCollections() {
+        do {
+            collections = try CollectionStore(fileURL: collectionsFile).load()
+        } catch {
+            errorMessage = "Couldn't read collections.json: \(error.localizedDescription)"
+        }
+    }
+
+    private func saveCollections() {
+        do {
+            try CollectionStore(fileURL: collectionsFile).save(collections)
+        } catch {
+            errorMessage = "Couldn't save collections: \(error.localizedDescription)"
+        }
+    }
+
+    /// When the backup folder moves, bring collections along unless the new
+    /// folder already has its own.
+    private func moveCollections(applying change: () -> Void) {
+        let current = collections
+        change()
+        if FileManager.default.fileExists(atPath: collectionsFile.path) {
+            loadCollections()
+        } else {
+            collections = current
+            if !current.isEmpty { saveCollections() }
+        }
+    }
+
+    // MARK: Backup folder
+
     func chooseBackupFolder() {
         guard let url = pickFolder(
             title: "Choose Backup Folder",
             message: "Snapshots will be saved in a Snapshots folder inside it."
         ) else { return }
-        customBackupFolder = url
-        defaults.set(url.path, forKey: Keys.backupFolder)
+        moveCollections {
+            customBackupFolder = url
+            defaults.set(url.path, forKey: Keys.backupFolder)
+        }
         Task { await refresh() }
     }
 
     func resetBackupFolder() {
-        customBackupFolder = nil
-        defaults.removeObject(forKey: Keys.backupFolder)
+        moveCollections {
+            customBackupFolder = nil
+            defaults.removeObject(forKey: Keys.backupFolder)
+        }
         Task { await refresh() }
     }
 
@@ -251,6 +411,7 @@ final class AppModel {
         case .fresh: isFresh(skill)
         case .tossed: isInLatestSnapshot(skill)
         case .kind(let kind): skill.kind == kind
+        case .collection(let id): collection(id)?.contains(skill) ?? false
         }
     }
 

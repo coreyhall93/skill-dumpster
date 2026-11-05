@@ -14,6 +14,7 @@ If you use Claude Code, Codex, Grok, or any agent that reads `SKILL.md` folders,
   - Any extra folders you add in Settings. These are searched all the way down, including hidden project folders like `.claude/skills`.
 - **Shows each skill once.** A skill symlinked into several agents is listed once. Byte-identical copies are merged into one entry that lists where the other copies live.
 - **Lets you inspect it.** You get the description, file count, size, last change, content hash, and a preview of `SKILL.md`. Plugin and built-in skills are marked *Managed*, because an update can overwrite local edits to them.
+- **Collections.** Group skills you use together, like a project or a workflow. Make one with ⌘N, then drag skills onto it in the sidebar, or use **Add to Collection** in a skill's right-click menu or its Collections button. Right-click a collection to rename it, delete it, or export it as a zip to share. Collections are saved as `collections.json` in your backup folder. Each skill is matched by its path, or by its source and folder name, so collections survive plugin updates and work on any Mac that syncs that folder.
 - **Backs it up.** One click (⇧⌘B) saves a timestamped zip of every skill plus a `manifest.json`. Snapshots go to `~/Documents/Skill Dumpster/Snapshots` by default, or to any folder you choose.
 
 Two status filters use the dumpster lingo:
@@ -60,6 +61,7 @@ source/
 
 | Shortcut | Action |
 |---|---|
+| ⌘N | New collection |
 | ⌘R | Rescan skill folders |
 | ⇧⌘B | Back up all skills |
 | ⌘F | Search |
