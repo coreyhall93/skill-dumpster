@@ -6,168 +6,81 @@ struct HelpView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .center, spacing: 14) {
+            HStack(spacing: 14) {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable()
-                    .frame(width: 48, height: 48)
+                    .frame(width: 52, height: 52)
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Skill Dumpster Help")
-                        .font(DumpsterFont.fixed(26, .heavy))
-                        .foregroundStyle(DumpsterTheme.primaryText)
-
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Skill Dumpster").font(.title2.weight(.semibold))
                     Text("A field guide for the odd little skill vault.")
-                        .font(DumpsterFont.callout(.regular))
-                        .foregroundStyle(DumpsterTheme.secondaryText)
+                        .foregroundStyle(.secondary)
                 }
-
                 Spacer()
-
-                Button("Done") {
-                    dismiss()
-                }
-                .keyboardShortcut(.defaultAction)
             }
             .padding(24)
-            .background(DumpsterTheme.commandSurface)
 
             Divider()
-                .overlay(DumpsterTheme.divider)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    HelpSection(title: "What Skill Dumpster Does", symbolName: "archivebox") {
-                        HelpText("Skill Dumpster scans known local skill folders, shows each skill's source and computed stats, opens skills for editing, and creates zip snapshots for safekeeping.")
+                VStack(alignment: .leading, spacing: 22) {
+                    topic("What it does", "tray.full") {
+                        Text("Skill Dumpster finds every SKILL.md on your Mac, shows where each one came from, and saves zip snapshots so a bad update or a stray rm never costs you a skill.")
                     }
 
-                    HelpSection(title: "Sources", symbolName: "folder.badge.gearshape") {
-                        HelpText("The source filters are origins, not editable tags. Codex Local, Claude, Grok, Sol, Codex Plugins, and Codex System are inferred from the folder where each SKILL.md was found.")
-                        HelpText("Open Settings from the sidebar to review every scanned source folder and jump to it in Finder.")
+                    topic("Where it looks", "folder") {
+                        Text("Shared agent skills (~/.agents/skills), Claude Code skills and installed plugins, Codex skills and plugins, and Grok skills. Add any other folder in Settings and it will be searched deeply.")
+                        Text("A skill linked into several agents shows up once. Byte-identical copies collapse into one entry that lists the other copies.")
                     }
 
-                    HelpSection(title: "Backups And Snapshots", symbolName: "externaldrive") {
-                        HelpText("Back Up creates a timestamped zip snapshot of all currently scanned skills. The default location is the Sol workspace (~/Sol/02-Projects/skill-dumpster/Snapshots), with a Documents fallback if Sol is unavailable.")
-                        HelpText("The backup location can be changed or reset in Settings. Snapshot rows in the sidebar can be opened or deleted with confirmation.")
+                    topic("Dumpster lingo", "sparkles") {
+                        term("Fresh Trash", "Skills changed in the last 7 days.")
+                        term("Tossed", "Skills unchanged since your latest snapshot.")
+                        term("Managed", "Plugin or built-in skills. You can edit them, but an update may overwrite your changes.")
                     }
 
-                    HelpSection(title: "Dumpster Lingo", symbolName: "sparkles") {
-                        HelpTerm(term: "Fresh Trash", meaning: "Skills changed in the last 7 days.")
-                        HelpTerm(term: "Tossed", meaning: "Skills captured in the latest snapshot.")
-                        HelpTerm(term: "Managed", meaning: "Plugin or system skills that live on disk but may be owned by a Codex/plugin install workflow.")
+                    topic("Shortcuts", "keyboard") {
+                        term("⌘R", "Rescan skill folders")
+                        term("⇧⌘B", "Back up all skills")
+                        term("⌘F", "Search")
+                        term("⌘,", "Settings")
                     }
-
-                    HelpSection(title: "Keyboard Shortcuts", symbolName: "keyboard") {
-                        ShortcutRow(keys: "Command R", action: "Refresh skills")
-                        ShortcutRow(keys: "Shift Command B", action: "Back up all skills")
-                        ShortcutRow(keys: "Command ?", action: "Open this help window")
-                    }
-
-                    Button {
-                        dismiss()
-                    } label: {
-                        Label("Close Help", systemImage: "checkmark.circle")
-                            .font(DumpsterFont.callout(.semibold))
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .padding(.top, 4)
                 }
                 .padding(24)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .background(DumpsterBackdrop())
-        }
-        .frame(width: 620, height: 640)
-        .environment(\.font, DumpsterFont.body())
-    }
-}
 
-private struct HelpSection<Content: View>: View {
-    let title: String
-    let symbolName: String
-    @ViewBuilder let content: Content
+            Divider()
 
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: symbolName)
-                .font(DumpsterFont.fixed(17, .semibold))
-                .foregroundStyle(DumpsterTheme.secondaryText)
-                .frame(width: 26, height: 26)
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text(title)
-                    .font(DumpsterFont.title3(.heavy))
-                    .foregroundStyle(DumpsterTheme.primaryText)
-
-                VStack(alignment: .leading, spacing: 7) {
-                    content
-                }
+            HStack {
+                Spacer()
+                Button("Done") { dismiss() }
+                    .keyboardShortcut(.defaultAction)
             }
+            .padding(16)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .glassPanel(cornerRadius: 14, prominent: false)
-        .overlay(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 3, style: .continuous)
-                .fill(DumpsterTheme.moss.opacity(0.72))
-                .frame(width: 4)
-                .padding(.vertical, 14)
-        }
-    }
-}
-
-private struct HelpText: View {
-    let text: String
-
-    init(_ text: String) {
-        self.text = text
+        .frame(width: 560, height: 600)
     }
 
-    var body: some View {
-        Text(text)
-            .font(DumpsterFont.callout(.regular))
-            .foregroundStyle(DumpsterTheme.secondaryText)
-            .lineSpacing(3)
+    private func topic<Content: View>(_ title: String, _ symbol: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: symbol)
+                .font(.headline)
+            VStack(alignment: .leading, spacing: 6) {
+                content()
+            }
+            .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
-    }
-}
-
-private struct HelpTerm: View {
-    let term: String
-    let meaning: String
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 10) {
-            Text(term)
-                .font(DumpsterFont.callout(.semibold))
-                .foregroundStyle(DumpsterTheme.primaryText)
-                .frame(width: 92, alignment: .leading)
-
-            Text(meaning)
-                .font(DumpsterFont.callout(.regular))
-                .foregroundStyle(DumpsterTheme.secondaryText)
-                .lineSpacing(3)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
-}
 
-private struct ShortcutRow: View {
-    let keys: String
-    let action: String
-
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(keys)
-                .font(DumpsterFont.caption(.semibold))
-                .foregroundStyle(DumpsterTheme.primaryText)
-                .padding(.horizontal, 10)
-                .frame(height: 26)
-                .background(DumpsterTheme.hoverFill, in: Capsule())
-
-            Text(action)
-                .font(DumpsterFont.callout(.regular))
-                .foregroundStyle(DumpsterTheme.secondaryText)
+    private func term(_ name: String, _ meaning: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(name)
+                .foregroundStyle(.primary)
+                .fontWeight(.medium)
+                .frame(width: 92, alignment: .leading)
+            Text(meaning)
         }
     }
 }

@@ -1,60 +1,71 @@
 # Skill Dumpster
 
-Native macOS app for browsing and backing up AI-agent skills into the Sol workspace.
+A small native Mac app that finds every AI-agent skill (`SKILL.md`) on your machine, shows where each one came from, and backs them all up as zip snapshots.
 
-Skill Dumpster v2.3 is a Native Premium redesign of the original utility: same local-first scanning and backup behavior, but with a higher-contrast source rail, cleaner detail-first heap workspace, snapshot shelf, inspector/settings swap, Geist typography, springy transitions, a lighter Help surface, and restrained odd-utility personality.
+If you use Claude Code, Codex, Grok, or any agent that reads `SKILL.md` folders, your skills end up spread across hidden folders, plugin caches, and symlinks. Skill Dumpster puts them in one searchable list so a bad plugin update or a stray `rm` never costs you a skill.
 
-The Swift package lives in `source/`.
+## What it does
 
-## Current Release
+- **Finds skills everywhere they hide.** It checks these by default:
+  - `~/.agents/skills`
+  - `~/.claude/skills` and your *installed* Claude Code plugins (read from `installed_plugins.json`, so old cached versions and marketplace catalogs don't show up)
+  - `~/.codex/skills`, built-in Codex skills, and Codex plugins
+  - Grok's local, bundled, and marketplace skills
+  - Any extra folders you add in Settings. These are searched all the way down, including hidden project folders like `.claude/skills`.
+- **Shows each skill once.** A skill symlinked into several agents is listed once. Byte-identical copies are merged into one entry that lists where the other copies live.
+- **Lets you inspect it.** You get the description, file count, size, last change, content hash, and a preview of `SKILL.md`. Plugin and built-in skills are marked *Managed*, because an update can overwrite local edits to them.
+- **Backs it up.** One click (⇧⌘B) saves a timestamped zip of every skill plus a `manifest.json`. Snapshots go to `~/Documents/Skill Dumpster/Snapshots` by default, or to any folder you choose.
 
-- Version: `2.3`
-- Build: `5`
-- Current release tag: `v2.3.0`
-- GitHub: [coreyhall93/skill-dumpster](https://github.com/coreyhall93/skill-dumpster) (private)
-- Installed local copy: `~/Applications/Skill Dumpster.app`
+Two status filters use the dumpster lingo:
 
-## Version Archive
+- **Fresh Trash** shows skills changed in the last 7 days.
+- **Tossed** shows skills unchanged since your latest snapshot.
 
-Version 1 is preserved in Git:
+## Requirements
 
-```sh
-git show v1.0.0
-```
+- macOS 14 Sonoma or later
+- Xcode 16 or the Swift 6 toolchain, to build
 
-The v1 archive commit is `Archive Skill Dumpster v1`. v2.3 replaces the app in place and keeps the same bundle ID, `com.coreyhall.skilldumpster`.
-
-## Open the App
-
-After building, the app bundle is at:
-
-```sh
-source/build/Skill Dumpster.app
-```
-
-The current packaged build has also been copied to:
+## Build and run
 
 ```sh
-~/Applications/Skill Dumpster.app
-```
-
-## Build
-
-```sh
-cd source
+git clone https://github.com/coreyhall93/skill-dumpster.git
+cd skill-dumpster/source
 swift test
 Scripts/package_app.sh
 open "build/Skill Dumpster.app"
 ```
 
-To refresh the installed local copy after packaging:
+To install it, copy the bundle into Applications:
 
 ```sh
-ditto "source/build/Skill Dumpster.app" "$HOME/Applications/Skill Dumpster.app"
+ditto "build/Skill Dumpster.app" "$HOME/Applications/Skill Dumpster.app"
 ```
 
-## Why This Exists
+The build is signed ad hoc, not notarized. If you move it to another Mac, Gatekeeper will ask you to approve it in System Settings › Privacy & Security.
 
-Skill Dumpster keeps local AI-agent skills visible, inspectable, and backed up as timestamped zip snapshots. It scans Codex, Claude, Grok, plugin/cache, and `~/Sol` skill folders.
+## Project layout
 
-The v2.3 design direction is Native Premium first: practical, calm, and Mac-native, with stronger contrast, flatter surfaces, fewer shadows, and oddness kept to copy, motion, empty states, snapshots, and Help.
+```
+source/
+  Package.swift
+  Sources/SkillDumpsterCore/   Scanning, de-duplication, snapshots. No UI.
+  Sources/SkillDumpster/       SwiftUI app.
+  Tests/SkillDumpsterCoreTests/
+  Scripts/package_app.sh       Builds the .app bundle (version lives here).
+  Scripts/generate_app_icon.sh Rebuilds AppIcon.icns from the SVG (needs rsvg-convert).
+```
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|---|---|
+| ⌘R | Rescan skill folders |
+| ⇧⌘B | Back up all skills |
+| ⌘F | Search |
+| ⌘, | Settings |
+| ⌘? | Help |
+
+## License
+
+MIT. See [LICENSE](LICENSE). The app icon is based on the Tabler Icons `trash` glyph (MIT); see [source/THIRD_PARTY_NOTICES.md](source/THIRD_PARTY_NOTICES.md).

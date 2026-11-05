@@ -29,26 +29,18 @@ public struct BackupService: @unchecked Sendable {
         self.baseDirectoryOverride = baseDirectoryOverride
     }
 
+    /// Where snapshots go when the user hasn't picked a folder.
+    public static func defaultBackupDirectory(homeDirectory: URL) -> URL {
+        homeDirectory.appendingPathComponent("Documents/Skill Dumpster", isDirectory: true)
+    }
+
     public func backupDirectory() throws -> URL {
         if let baseDirectoryOverride {
             try fileManager.createDirectory(at: baseDirectoryOverride, withIntermediateDirectories: true)
             return baseDirectoryOverride
         }
 
-        let solProject = homeDirectory
-            .appendingPathComponent("Sol/02-Projects/skill-dumpster", isDirectory: true)
-
-        let backupDirectory: URL
-        if fileManager.fileExists(atPath: solProject.path) {
-            // Co-locate snapshots with the app's project home in Sol. Sol syncs
-            // across machines (Syncthing) and is backed up (restic + Time Machine),
-            // so snapshots ride those layers instead of iCloud.
-            backupDirectory = solProject
-        } else {
-            // Fallback for a machine where Sol is not present yet.
-            backupDirectory = homeDirectory.appendingPathComponent("Documents/Skill Dumpster", isDirectory: true)
-        }
-
+        let backupDirectory = Self.defaultBackupDirectory(homeDirectory: homeDirectory)
         try fileManager.createDirectory(at: backupDirectory, withIntermediateDirectories: true)
         return backupDirectory
     }

@@ -1,36 +1,41 @@
 import Foundation
 
+/// Where a skill was found. Inferred from the scanned folder, never edited by hand.
 public enum SkillKind: String, Codable, CaseIterable, Sendable {
-    case personal = "Codex Local"
+    case agents = "Shared"
     case claude = "Claude"
+    case claudePlugin = "Claude Plugins"
+    case codex = "Codex"
+    case codexPlugin = "Codex Plugins"
+    case codexSystem = "Codex System"
     case grok = "Grok"
-    case sol = "Sol"
-    case system = "Codex System"
-    case plugin = "Codex Plugins"
+    case custom = "Custom Folders"
 
+    /// Plugin and built-in skills live on disk but are owned by an installer,
+    /// so local edits can be overwritten.
     public var isManaged: Bool {
         switch self {
-        case .system, .plugin:
-            return true
-        case .personal, .claude, .grok, .sol:
-            return false
+        case .claudePlugin, .codexPlugin, .codexSystem:
+            true
+        case .agents, .claude, .codex, .grok, .custom:
+            false
         }
     }
 
     public var sortOrder: Int {
+        Self.allCases.firstIndex(of: self) ?? 0
+    }
+
+    public var summary: String {
         switch self {
-        case .personal:
-            return 0
-        case .claude:
-            return 1
-        case .grok:
-            return 2
-        case .sol:
-            return 3
-        case .plugin:
-            return 4
-        case .system:
-            return 5
+        case .agents: "Cross-agent skills in ~/.agents/skills."
+        case .claude: "Personal Claude Code skills."
+        case .claudePlugin: "Skills from installed Claude Code plugins."
+        case .codex: "Personal Codex skills."
+        case .codexPlugin: "Skills from installed Codex plugins."
+        case .codexSystem: "Skills built into Codex."
+        case .grok: "Grok local, bundled, and marketplace skills."
+        case .custom: "Folders you added in Settings."
         }
     }
 }
@@ -78,6 +83,8 @@ public struct SkillRecord: Identifiable, Codable, Hashable, Sendable {
     public let path: String
     public let skillFilePath: String
     public let stats: SkillStats
+    /// Other folders holding a byte-identical copy of this skill.
+    public var duplicatePaths: [String]
 
     public init(
         slug: String,
@@ -86,7 +93,8 @@ public struct SkillRecord: Identifiable, Codable, Hashable, Sendable {
         kind: SkillKind,
         path: String,
         skillFilePath: String,
-        stats: SkillStats
+        stats: SkillStats,
+        duplicatePaths: [String] = []
     ) {
         self.slug = slug
         self.declaredName = declaredName
@@ -95,6 +103,13 @@ public struct SkillRecord: Identifiable, Codable, Hashable, Sendable {
         self.path = path
         self.skillFilePath = skillFilePath
         self.stats = stats
+        self.duplicatePaths = duplicatePaths
+    }
+
+    /// The name to show: the front matter `name` when present, else the folder name.
+    public var displayName: String {
+        guard let declaredName, !declaredName.isEmpty else { return slug }
+        return declaredName
     }
 }
 

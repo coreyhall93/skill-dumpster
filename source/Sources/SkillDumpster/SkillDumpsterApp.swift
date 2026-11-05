@@ -2,41 +2,46 @@ import SwiftUI
 
 @main
 struct SkillDumpsterApp: App {
-    @StateObject private var model = AppModel()
+    @State private var model = AppModel()
 
     var body: some Scene {
-        WindowGroup {
+        Window("Skill Dumpster", id: "main") {
             ContentView()
-                .environmentObject(model)
-                .frame(minWidth: 1120, minHeight: 720)
+                .environment(model)
+                .frame(minWidth: 940, minHeight: 600)
+                .task { await model.refresh() }
                 .sheet(isPresented: $model.isHelpPresented) {
                     HelpView()
-                        .environmentObject(model)
-                }
-                .task {
-                    await model.refresh()
                 }
         }
-        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 1240, height: 780)
         .commands {
+            CommandGroup(replacing: .newItem) {}
+
             CommandGroup(after: .newItem) {
                 Button("Refresh Skills") {
                     Task { await model.refresh() }
                 }
-                .keyboardShortcut("r", modifiers: [.command])
+                .keyboardShortcut("r")
 
                 Button("Back Up All Skills") {
                     Task { await model.backUpAllSkills() }
                 }
                 .keyboardShortcut("b", modifiers: [.command, .shift])
+                .disabled(model.skills.isEmpty || model.isBackingUp)
             }
 
             CommandGroup(replacing: .help) {
                 Button("Skill Dumpster Help") {
-                    model.showHelp()
+                    model.isHelpPresented = true
                 }
-                .keyboardShortcut("?", modifiers: [.command])
+                .keyboardShortcut("?")
             }
+        }
+
+        Settings {
+            SettingsView()
+                .environment(model)
         }
     }
 }

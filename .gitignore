@@ -1,5 +1,9 @@
-# Skill snapshots written by the app into its project home. User backup data,
-# not source. Synced + backed up via Sol's Syncthing/restic layers, not Git.
+# Snapshots written by the app when its backup folder points here.
 Snapshots/
+
+# Personal working notes, kept beside the code but not published.
+FUTURE_COREY.md
+CONTEXT.md
+PRODUCT_NOTES.md
 
 .DS_Store

@@ -12,3 +12,5 @@ Skill Dumpster's placeholder app icon uses the `trash` glyph from Tabler Icons a
 MIT License text from Tabler Icons:
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, subject to inclusion of the copyright notice and permission notice in substantial copies of the Software.
+
+Full MIT License text: https://github.com/tabler/tabler-icons/blob/main/LICENSE

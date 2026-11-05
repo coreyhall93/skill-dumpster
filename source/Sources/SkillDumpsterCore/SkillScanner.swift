@@ -13,74 +13,123 @@ public struct SkillScanner: @unchecked Sendable {
         self.fileManager = fileManager
     }
 
-    public static func defaultRoots(homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser) -> [SkillRoot] {
-        [
-            SkillRoot(url: homeDirectory.appendingPathComponent(".agents/skills"), kind: .personal),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".codex/skills"), kind: .personal),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".codex/skills/.system"), kind: .system),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".codex/plugins/cache"), kind: .plugin, recursive: true),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".claude/skills"), kind: .claude),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".claude/plugins"), kind: .claude, recursive: true),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".grok/skills"), kind: .grok),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".grok/bundled/skills"), kind: .grok),
-            SkillRoot(url: homeDirectory.appendingPathComponent(".grok/marketplace-cache"), kind: .grok, recursive: true),
-            SkillRoot(
-                url: homeDirectory.appendingPathComponent("Sol"),
-                kind: .sol,
-                recursive: true,
-                includeHiddenDirectories: true
-            )
-        ]
+    /// The folders every agent install is expected to use. Missing folders are skipped.
+    public static func defaultRoots(
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        fileManager: FileManager = .default
+    ) -> [SkillRoot] {
+        func root(_ path: String, _ kind: SkillKind, recursive: Bool = false) -> SkillRoot {
+            SkillRoot(url: homeDirectory.appendingPathComponent(path), kind: kind, recursive: recursive)
+        }
+
+        return [root(".agents/skills", .agents)]
+            + [root(".claude/skills", .claude)]
+            + claudePluginRoots(homeDirectory: homeDirectory, fileManager: fileManager)
+            + [
+                root(".codex/skills", .codex),
+                root(".codex/skills/.system", .codexSystem),
+                root(".codex/plugins/cache", .codexPlugin, recursive: true),
+                root(".grok/skills", .grok),
+                root(".grok/bundled/skills", .grok),
+                root(".grok/marketplace-cache", .grok, recursive: true)
+            ]
+    }
+
+    /// Roots for folders the user adds by hand. These are searched deeply,
+    /// including hidden project folders such as `.claude/skills`.
+    public static func customRoot(_ url: URL) -> SkillRoot {
+        SkillRoot(url: url, kind: .custom, recursive: true, includeHiddenDirectories: true)
+    }
+
+    /// Claude Code keeps marketplace catalogs and every cached plugin version under
+    /// `~/.claude/plugins`. Only the install paths listed in `installed_plugins.json`
+    /// are live, so scan those and fall back to the cache when the manifest is missing.
+    static func claudePluginRoots(homeDirectory: URL, fileManager: FileManager) -> [SkillRoot] {
+        let pluginsDirectory = homeDirectory.appendingPathComponent(".claude/plugins", isDirectory: true)
+        let manifestURL = pluginsDirectory.appendingPathComponent("installed_plugins.json")
+
+        struct Manifest: Decodable {
+            struct Install: Decodable { let installPath: String }
+            let plugins: [String: [Install]]
+        }
+
+        guard let data = try? Data(contentsOf: manifestURL),
+              let manifest = try? JSONDecoder().decode(Manifest.self, from: data) else {
+            return [SkillRoot(url: pluginsDirectory.appendingPathComponent("cache"), kind: .claudePlugin, recursive: true)]
+        }
+
+        let installPaths = Set(manifest.plugins.values.flatMap { $0.map(\.installPath) })
+        return installPaths.sorted().map {
+            SkillRoot(url: URL(fileURLWithPath: $0, isDirectory: true), kind: .claudePlugin, recursive: true)
+        }
     }
 
     public func scan() throws -> [SkillRecord] {
-        var skillURLs: [URL: SkillKind] = [:]
+        // One entry per real folder. Roots are visited in order, so a skill symlinked
+        // into several agent folders is credited to the first root that reaches it.
+        var claimed: [String: SkillKind] = [:]
+        var order: [String] = []
 
         for root in roots where fileManager.fileExists(atPath: root.url.path) {
             let rootURL = root.url.resolvingSymlinksInPath()
-            if root.recursive {
-                for url in recursiveSkillDirectories(
-                    in: rootURL,
-                    includeHiddenDirectories: root.includeHiddenDirectories
-                ) {
-                    skillURLs[url] = root.kind
-                }
-            } else {
-                for url in directSkillDirectories(in: rootURL, kind: root.kind) {
-                    skillURLs[url] = root.kind
-                }
+            let found = root.recursive
+                ? recursiveSkillDirectories(in: rootURL, includeHiddenDirectories: root.includeHiddenDirectories)
+                : directSkillDirectories(in: rootURL)
+
+            for url in found {
+                let realPath = url.resolvingSymlinksInPath().standardizedFileURL.path
+                guard claimed[realPath] == nil else { continue }
+                claimed[realPath] = root.kind
+                order.append(realPath)
             }
         }
 
-        return try skillURLs
-            .map { try readSkill(at: $0.key, kind: $0.value) }
+        let records = order.compactMap { path -> SkillRecord? in
+            guard let kind = claimed[path] else { return nil }
+            return try? readSkill(at: URL(fileURLWithPath: path, isDirectory: true), kind: kind)
+        }
+
+        return Self.collapsingCopies(records)
             .sorted {
-                if $0.kind == $1.kind {
-                    return $0.slug.localizedCaseInsensitiveCompare($1.slug) == .orderedAscending
+                let comparison = $0.displayName.localizedCaseInsensitiveCompare($1.displayName)
+                if comparison == .orderedSame {
+                    return $0.kind.sortOrder < $1.kind.sortOrder
                 }
-                return $0.kind.sortOrder < $1.kind.sortOrder
+                return comparison == .orderedAscending
             }
     }
 
-    private func directSkillDirectories(in root: URL, kind: SkillKind) -> [URL] {
+    /// Byte-identical copies of the same skill (plugin caches, vendored copies)
+    /// collapse into one record that remembers where the other copies live.
+    static func collapsingCopies(_ records: [SkillRecord]) -> [SkillRecord] {
+        var firstIndex: [String: Int] = [:]
+        var result: [SkillRecord] = []
+
+        for record in records {
+            let key = "\(record.slug)\u{0}\(record.stats.contentHash)"
+            if let index = firstIndex[key] {
+                result[index].duplicatePaths.append(record.path)
+            } else {
+                firstIndex[key] = result.count
+                result.append(record)
+            }
+        }
+        return result
+    }
+
+    private func directSkillDirectories(in root: URL) -> [URL] {
         guard let children = try? fileManager.contentsOfDirectory(
             at: root,
-            includingPropertiesForKeys: [.isDirectoryKey],
-            options: [.skipsPackageDescendants]
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
         ) else {
             return []
         }
 
-        return children.compactMap { child in
-            let isDirectory = (try? child.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false
-            guard isDirectory else { return nil }
-
-            if child.lastPathComponent == ".system", kind == .personal {
-                return nil
-            }
-
-            let skillFile = child.appendingPathComponent("SKILL.md")
-            return fileManager.fileExists(atPath: skillFile.path) ? child.standardizedFileURL : nil
+        // Follows symlinked skill folders, which is how most skill installers link
+        // one copy into several agents.
+        return children.filter { child in
+            fileManager.fileExists(atPath: child.appendingPathComponent("SKILL.md").path)
         }
     }
 
@@ -100,14 +149,14 @@ public struct SkillScanner: @unchecked Sendable {
         var results: [URL] = []
         for case let url as URL in enumerator {
             let values = try? url.resourceValues(forKeys: [.isDirectoryKey])
-            if values?.isDirectory == true,
-               Self.prunedRecursiveDirectoryNames.contains(url.lastPathComponent) {
+            guard values?.isDirectory == true else { continue }
+
+            if Self.prunedRecursiveDirectoryNames.contains(url.lastPathComponent) {
                 enumerator.skipDescendants()
                 continue
             }
 
-            let skillFile = url.appendingPathComponent("SKILL.md")
-            if fileManager.fileExists(atPath: skillFile.path) {
+            if fileManager.fileExists(atPath: url.appendingPathComponent("SKILL.md").path) {
                 results.append(url.standardizedFileURL)
                 enumerator.skipDescendants()
             }
@@ -117,8 +166,8 @@ public struct SkillScanner: @unchecked Sendable {
 
     private func readSkill(at directory: URL, kind: SkillKind) throws -> SkillRecord {
         let skillFile = directory.appendingPathComponent("SKILL.md")
-        let contents = try String(contentsOf: skillFile, encoding: .utf8)
-        let metadata = SkillScanner.parseSkillMarkdown(contents)
+        let data = try Data(contentsOf: skillFile)
+        let metadata = SkillScanner.parseSkillMarkdown(String(decoding: data, as: UTF8.self))
         let stats = try collectStats(for: directory)
 
         return SkillRecord(
