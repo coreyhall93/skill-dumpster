@@ -33,7 +33,14 @@ struct SkillListView: View {
     @ViewBuilder
     private var emptyState: some View {
         if !model.searchText.isEmpty {
-            ContentUnavailableView.search(text: model.searchText)
+            ContentUnavailableView {
+                Label("No results for “\(model.searchText)”", systemImage: "magnifyingglass")
+            } description: {
+                Text("Nothing in \(model.selection.title) matches this search.")
+            } actions: {
+                Button("Clear Search") { model.searchText = "" }
+                    .keyboardShortcut(.cancelAction)
+            }
         } else if model.selection == .tossed {
             ContentUnavailableView(
                 "Nothing tossed yet",

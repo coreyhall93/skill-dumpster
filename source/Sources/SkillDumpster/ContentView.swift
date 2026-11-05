@@ -37,7 +37,10 @@ struct ContentView: View {
         if model.isBackingUp { return "Tossing a fresh snapshot…" }
         if model.isRefreshing && !model.hasLoaded { return "Rummaging through the heap…" }
         let shown = model.visibleSkills.count
-        return shown == 1 ? "1 skill" : "\(shown.formatted()) skills"
+        let count = shown == 1 ? "1 skill" : "\(shown.formatted()) skills"
+        let query = model.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Always show an active search, so a filter can never hide behind an empty-looking field.
+        return query.isEmpty ? count : "\(count) matching “\(query)”"
     }
 }
 
